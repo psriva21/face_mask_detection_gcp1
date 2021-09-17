@@ -1,0 +1,131 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<style>
+  #container {
+    margin: 0px auto;
+    width: 500px;
+    height: 375px;
+    border: 10px #333 solid;
+  }
+  #videoElement {
+    width: 500px;
+    height: 375px;
+    background-color: #666;
+  }
+  </style>
+<html>
+  <head>
+    <title>Face Mask Detection</title>
+  </head>
+  <body>
+    <h1>Face Mask Detection</h1>
+    <div id="container">
+      <video autoplay="true" id="videoElement">
+      
+      </video>
+    <div id="display_image" style="width: 500px; height: 375px;">
+    <img id="captured_frame" style="width: 500px; height: 375px;">
+    </div>
+    </div>
+  </body>
+</html>
+<script>
+function streamLiveFeed(){
+var video_stream = document.querySelector("#videoElement");
+if (navigator.mediaDevices.getUserMedia) {   
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video_stream.srcObject = stream;
+    })
+    .catch(function (error) {
+      console.log(error)
+      console.log("Something went wrong!");
+    });
+    
+}
+}
+ async function draw()
+{
+  video=document.querySelector("#videoElement");
+  console.log(video);
+  canvas = document.createElement("canvas");
+  canvas.getContext('2d').drawImage(video, 0,0, canvas.width, canvas.height);
+  //var dataurl = canvas.toDataURL();
+  //document.getElementById("captured_frame").src = dataurl;
+      var blob = await new Promise(resolve => canvas.toBlob(resolve));
+        var url = window.URL.createObjectURL(blob);
+        console.log(url)
+        document.getElementById("captured_frame").src = url;
+        var form = new FormData();
+      form.append('myfile', blob);
+      postData(form);
+
+}
+function postData(form){
+        $.ajax({
+            "url": 'https://gae-cloud-app.uc.r.appspot.com/upload',
+            "data": form,
+            "processData": false,
+            "crossDomain": true,
+            "contentType": false,
+            "type": 'POST',
+            "success": function(data){
+              console.log(data);
+              process_response(data);
+                
+            }, 
+            "error": function(error, textStatus, errorText){
+                console.log(errorText);
+                postData(form);
+            }});
+    }
+
+    async function process_response(data){
+        console.log(data);
+        var jsonData = data;
+        var labels = jsonData['labels'];
+        var scores = jsonData['scores'];
+        var boxes = jsonData['boxes'];
+        var image_preview = $('#display_image');
+        var image = $('#captured_frame')[0];
+        var x_factor = image.clientWidth/ image.naturalWidth;
+        var y_factor = image.clientHeight/ image.naturalHeight;
+        console.log(x_factor, y_factor);
+        for(var i=0; i<labels.length; i++){
+            if(scores[i] >= 0.5){
+                var box = document.createElement('div');
+                box.classList.add('status_box');
+                box.style.top = boxes[i][1] * y_factor;
+                box.style.left = boxes[i][0] * x_factor;
+                box.style.width = (boxes[i][2] - boxes[i][0]) * x_factor;
+                box.style.height = (boxes[i][3] - boxes[i][1]) * y_factor;
+                if(labels[i] == 1){
+                    box.classList.add('box_ok');
+                }else if(labels[i] == 2){ 
+                    box.classList.add('box_not_ok');
+                }else{
+                    box.classList.add('box_adjust');
+                }
+                image_preview[0].appendChild(box);
+            }
+        }
+
+        setTimeout(function(){
+            draw();
+        }, 4000);
+    }
+
+$(document).ready(function(){
+  streamLiveFeed();
+
+    
+      window.setTimeout(
+      function(){
+      draw();
+      
+    },3000);
+    
+    
+   
+  
+})
+</script>

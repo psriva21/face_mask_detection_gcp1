@@ -1,0 +1,33 @@
+.video_row{
+    display: flex;
+    height: 480;
+}
+
+.preview{
+    width: 640;
+    height: 480;
+    margin: auto;
+    position: relative;
+}
+
+.image_img{
+    max-width: 640;
+    max-height: 480;
+    margin: auto;
+}
+
+.status_box{
+    position: absolute;
+}
+
+.box_ok{
+    border: 1px solid green;
+}
+
+.box_not_ok{
+    border: 1px solid red;
+}
+
+.box_adjust{
+    border: 1px solid blue;
+}

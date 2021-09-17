@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="{{url_for('static', filename='main.css')}}">
+    </head>
+    <body>
+        
+        <input type="file" name="file[]" id="video_input" accept="video/*" multiple="multiple">
+        <input id = "btn" type="submit" value="Test">
+        <div id="video_display">
+
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="{{url_for('static', filename='videos.js')}}"></script>
+    </body>
+</html>

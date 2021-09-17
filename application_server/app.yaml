@@ -1,0 +1,4 @@
+runtime: python37
+instance_class: ""
+env_variables:
+  TORCH_HOME: "./model"
